@@ -15,4 +15,4 @@ The dataset consists of labeled images with bounding boxes for face mask detecti
 1. Clone this repository:  
    ```bash
    git clone https://github.com/somtoval/Face-Mask-Detector.git
-   cd face-mask-detection
+   cd Face-Mask-Detector
