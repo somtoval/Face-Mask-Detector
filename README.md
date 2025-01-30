@@ -1,39 +1,18 @@
-# Plant Disease Detection System
+# 😷 Face Mask Detection (YOLOv5)  
 
-## Overview
-This application uses deep learning and AI to detect diseases in plants (specifically tomatoes, peppers, and potatoes) from images. It combines a TensorFlow-based image classifier with the Groq LLM to provide detailed analysis and treatment recommendations.
+This project implements **YOLOv5** to detect whether a person is wearing a face mask or not in real-time.  
 
-## Features
-- Image-based disease detection for multiple plant types
-- Supported plants: Tomatoes, Peppers, Potatoes
-- Disease classification with confidence scores
-- AI-powered analysis of plant conditions
-- Treatment recommendations for detected diseases
-- Support for healthy plant identification
+## 📌 Features  
+- Uses **YOLOv5** for high-speed, real-time face mask detection  
+- Can be deployed on **CCTV cameras, mobile apps, and web applications**  
+- Detects **"Mask"**, **"No Mask"**, and optionally **"Improper Mask"**  
 
-## Diseases Detected
-### Tomato
-- Bacterial Spot
-- Early Blight
-- Late Blight
-- Leaf Mold
-- Septoria Leaf Spot
-- Spider Mites
-- Target Spot
-- Yellow Leaf Curl Virus
-- Mosaic Virus
+## 📂 Dataset  
+The dataset consists of labeled images with bounding boxes for face mask detection. It can be obtained from:  
+🔗 [Kaggle: Face Mask Detection Dataset](https://www.kaggle.com/datasets/andrewmvd/face-mask-detection)  
 
-### Pepper
-- Bacterial Spot
-
-### Potato
-- Early Blight
-- Late Blight
-
-## Technical Stack
-- **Backend**: Python, Flask
-- **Machine Learning**: TensorFlow, Keras
-- **AI Language Model**: Groq LLM
-- **Image Processing**: TensorFlow Preprocessing
-- **API**: REST API with CORS support
-- **Data Format**: JSON
+## 🛠 Installation  
+1. Clone this repository:  
+   ```bash
+   git clone https://github.com/somtoval/Face-Mask-Detector.git
+   cd face-mask-detection
