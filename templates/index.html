@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Mask Detection</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #f5f6fa;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--secondary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .detection-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 2rem;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-section.dragover {
+            background: rgba(74, 144, 226, 0.1);
+            border-color: var(--primary);
+        }
+
+        #uploadBtn {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        #uploadBtn:hover {
+            background: #357abd;
+        }
+
+        .preview-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 2rem;
+        }
+
+        .preview-container {
+            flex: 1;
+            text-align: center;
+        }
+
+        .preview-container h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        #originalImage, #processedImage {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            padding: 1rem;
+            background: var(--secondary);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Face Mask Detection</h1>
+            <p>Upload an image to detect face masks using YOLO</p>
+        </div>
+
+        <div class="detection-container">
+            <div class="upload-section" id="dropZone">
+                <h3>Drag & Drop or Click to Upload</h3>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                <button id="uploadBtn">Choose File</button>
+            </div>
+
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Processing image...</p>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-container">
+                    <h3>Original Image</h3>
+                    <img id="originalImage" src="" alt="Original" style="display: none;">
+                </div>
+                <div class="preview-container">
+                    <h3>Processed Image</h3>
+                    <img id="processedImage" src="" alt="Processed" style="display: none;">
+                </div>
+            </div>
+
+            <div class="stats">
+                <h3>Detection Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalFaces">0</div>
+                        <div class="stat-label">Total Faces</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="withMask">0</div>
+                        <div class="stat-label">With Mask</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="withoutMask">0</div>
+                        <div class="stat-label">Without Mask</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const originalImage = document.getElementById('originalImage');
+            const processedImage = document.getElementById('processedImage');
+            const loading = document.querySelector('.loading');
+
+            // Handle drag and drop
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    processFile(file);
+                }
+            });
+
+            // Handle button click upload
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    processFile(file);
+                }
+            });
+
+            function processFile(file) {
+                // Show loading
+                loading.style.display = 'block';
+                originalImage.style.display = 'none';
+                processedImage.style.display = 'none';
+
+                // Display original image
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalImage.src = e.target.result;
+                    originalImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+
+                // Send to backend
+                const formData = new FormData();
+                formData.append('image', file);
+
+                fetch('/detect', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading
+                    loading.style.display = 'none';
+
+                    // Display processed image
+                    processedImage.src = 'data:image/jpeg;base64,' + data.processed_image;
+                    processedImage.style.display = 'block';
+
+                    // Update statistics
+                    document.getElementById('totalFaces').textContent = data.total_faces;
+                    document.getElementById('withMask').textContent = data.with_mask;
+                    document.getElementById('withoutMask').textContent = data.without_mask;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.style.display = 'none';
+                    alert('Error processing image. Please try again.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
