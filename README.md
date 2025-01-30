@@ -1,11 +1,11 @@
 # 😷 Face Mask Detection (YOLOv5)  
 
-This project implements **YOLOv5** to detect whether a person is wearing a face mask or not in real-time.  
+This project implements **YOLOv5** to detect whether a person is wearing a face mask or not.  
 
 ## 📌 Features  
-- Uses **YOLOv5** for high-speed, real-time face mask detection  
+- Uses **YOLOv5** for face mask detection  
 - Can be deployed on **CCTV cameras, mobile apps, and web applications**  
-- Detects **"Mask"**, **"No Mask"**, and optionally **"Improper Mask"**  
+- Detects **"Mask"** and **"No Mask"**
 
 ## 📂 Dataset  
 The dataset consists of labeled images with bounding boxes for face mask detection. It can be obtained from:  
